@@ -2,8 +2,8 @@ import serial
 import time
 
 #choix port série
-PORT_SERIE = '/dev/ttyUSB0'
-#PORT_SERIE = 'COM1'
+#PORT_SERIE = '/dev/ttyUSB0'
+PORT_SERIE = 'COM1'
 
 def test_mouvement():
     try:
