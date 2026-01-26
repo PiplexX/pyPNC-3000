@@ -2,12 +2,15 @@ import serial
 import time
 
 class CNC():
+        #constructeur, permet de paramètrer la profondeur de gravure par défaut, le port de communication série et la vitesse de la liaison
         def __init__(self,profondeur_gravure=50, port='COM1', vitesse_bauds=9600) :
             self.port = port
             self.vitesse_bauds = vitesse_bauds
             self.__config(profondeur_gravure)
             self.profondeur_gravure = profondeur_gravure
+            #variable dernier Z, inutilisée pour le moment mais conçue pour patch le controle de l'axe Z avec l'IHM
             self.dernier_z = 0
+        #fonction de config lancé après initialisation, lance la communication série et envoie la commande pour définir les positions PU et PD
         def __config(self, profondeur_gravure):
             self.ser = serial.Serial(
             port=self.port,
@@ -23,6 +26,7 @@ class CNC():
             self.ser.write((f"@ {self.__convertion(profondeur_gravure, -1)} , 100").encode("ascii"))
         def __convertion(self, mm ,multi): #convertit les mm pour le pas de la machine
             return (mm*100)*multi
+        # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
         def droite(self, nb_mm, multi=1):
             self.ser.write((f"^PR {self.__convertion(nb_mm, multi)},0;").encode('ascii'))
             return 0
@@ -35,6 +39,7 @@ class CNC():
         def arriere(self, nb_mm, multi=-1):
             self.ser.write((f"^PR 0,{self.__convertion(nb_mm, multi)};").encode('ascii'))
             return 0
+        # ---------------------------------- FONCTIONS DE HAUTEUR ----------------------------------
         def bas(self, nb_mm, multi=-1):
             self.ser.write((f"Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
             self.dernier_z += self.__convertion(nb_mm, multi)
@@ -43,6 +48,7 @@ class CNC():
             self.ser.write((f"Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
             self.dernier_z += self.__convertion(nb_mm, multi)
             return 0
+        # ---------------------------------- FONCTIONS PARTICULIERES ----------------------------------
         def home(self):
             self.ser.write(b"H;")
             return 0
@@ -65,6 +71,7 @@ class CNC():
         def regler_vitesse(self, vitesse):
             self.ser.write(f"V {vitesse};".encode('ascii'))
             print("vitesse")
+        # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
         def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
             #on vide le tampon
             self.ser.reset_input_buffer()
