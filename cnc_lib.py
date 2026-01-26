@@ -28,30 +28,32 @@ class CNC():
             return (mm*100)*multi
         # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
         def droite(self, nb_mm, multi=1):
-            self.ser.write((f"^PR {self.__convertion(nb_mm, multi)},0;").encode('ascii'))
+            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multi)},0,0;").encode('ascii'))
             return 0
         def gauche(self, nb_mm, multi=-1):
-            self.ser.write((f"^PR {self.__convertion(nb_mm, multi)},0;").encode('ascii'))
+            self.ser.write((f"^PR Z{self.__convertion(nb_mm, multi)},0,0;").encode('ascii'))
             return 0
         def avant(self, nb_mm, multi=1):
-            self.ser.write((f"^PR 0,{self.__convertion(nb_mm, multi)};").encode('ascii'))
+            self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
             return 0
         def arriere(self, nb_mm, multi=-1):
-            self.ser.write((f"^PR 0,{self.__convertion(nb_mm, multi)};").encode('ascii'))
+            self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
             return 0
         # ---------------------------------- FONCTIONS DE HAUTEUR ----------------------------------
         def bas(self, nb_mm, multi=-1):
-            self.ser.write((f"Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
+            self.ser.write((f"^PR Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
             self.dernier_z += self.__convertion(nb_mm, multi)
             return 0
         def haut(self, nb_mm, multi=1):
-            self.ser.write((f"Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
+            self.ser.write((f"^PR Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
             self.dernier_z += self.__convertion(nb_mm, multi)
             return 0
         # ---------------------------------- FONCTIONS PARTICULIERES ----------------------------------
-        def starting_configuration(self):
+        def start_conf(self):
             #Initialisation du niveau de gravure et du niveau de repos (Attention Z0 doit être set manuellement)
             self.ser.write((f"@ {self.__convertion(self.profondeur_gravure, -1)} , 100").encode("ascii"))
+            cords = self.lecture_pos()
+            self.dernier_x,self.dernier_y,self.dernier_z= cords.split(',')
         def home(self):
             self.ser.write(b"H;")
             return 0
@@ -81,9 +83,8 @@ class CNC():
             self.ser.write(b"OS;")
             reponse = self.ser.read(10).decode("ascii").strip()
             return(reponse)
-        def lecture_position(self):
+        def lecture_pos(self):
             self.ser.reset_input_buffer()
             self.ser.write(b"O;")
-            reponse = self.ser.read(10).decode('ascii').strip()
-            print(reponse)
+            reponse = self.ser.read(16).decode('ascii').strip()
             return reponse
