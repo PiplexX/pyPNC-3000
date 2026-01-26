@@ -24,8 +24,6 @@ class CNC():
 			dsrdtr=True,
             rtscts=True  
         )
-            #Initialisation du niveau de gravure et du niveau de repos (Attention Z0 doit être set manuellement)
-            self.ser.write((f"@ {self.__convertion(profondeur_gravure, -1)} , 100").encode("ascii"))
         def __convertion(self, mm ,multi): #convertit les mm pour le pas de la machine
             return (mm*100)*multi
         # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
@@ -51,6 +49,9 @@ class CNC():
             self.dernier_z += self.__convertion(nb_mm, multi)
             return 0
         # ---------------------------------- FONCTIONS PARTICULIERES ----------------------------------
+        def starting_configuration(self):
+            #Initialisation du niveau de gravure et du niveau de repos (Attention Z0 doit être set manuellement)
+            self.ser.write((f"@ {self.__convertion(self.profondeur_gravure, -1)} , 100").encode("ascii"))
         def home(self):
             self.ser.write(b"H;")
             return 0
@@ -80,3 +81,9 @@ class CNC():
             self.ser.write(b"OS;")
             reponse = self.ser.read(10).decode("ascii").strip()
             return(reponse)
+        def lecture_position(self):
+            self.ser.reset_input_buffer()
+            self.ser.write(b"O;")
+            reponse = self.ser.read(10).decode('ascii').strip()
+            print(reponse)
+            return reponse
