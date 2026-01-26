@@ -1,3 +1,5 @@
+#Owner : PiplexX, projet CNC 2026 BTS CIEL Loritz
+
 import serial
 import time
 
