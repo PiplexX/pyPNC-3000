@@ -74,7 +74,7 @@ class CNC():
             self.ser.write(f"T3, {self.__convertion(taille_x,1)},{self.__convertion(taille_y,1)},200,1;".encode('ascii'))
             return 0
         def regler_vitesse(self, vitesse):
-            self.ser.write(f"V {vitesse};".encode('ascii'))
+            self.ser.write(f"V {vitesse}".encode('ascii'))
             print("vitesse")
         # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
         def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
