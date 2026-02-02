@@ -39,6 +39,18 @@ class CNC():
         def arriere(self, nb_mm, multi=-1):
             self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
             return 0
+        def diag_HG(self, nb_mm, multix = -1, multiy = 1):
+            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            return 0
+        def diag_HD(self, nb_mm, multix = 1, multiy = 1):
+            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            return 0
+        def diag_BG(self, nb_mm, multix = -1, multiy = -1):
+            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            return 0
+        def diag_BD(self, nb_mm, multix = 1, multiy = -1):
+            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            return 0
         # ---------------------------------- FONCTIONS DE HAUTEUR ----------------------------------
         def bas(self, nb_mm, multi=-1):
             self.ser.write((f"^PR Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
