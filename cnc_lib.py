@@ -88,6 +88,10 @@ class CNC():
         def regler_vitesse(self, vitesse):
             self.ser.write(f"V {vitesse}".encode('ascii'))
             print("vitesse")
+            return 0
+        def graver_str(self, text): # a test
+            self.ser.write(f"P {text}".encode('ascii'))
+            return 0
         # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
         def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
             #on vide le tampon
