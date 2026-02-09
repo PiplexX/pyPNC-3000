@@ -24,6 +24,7 @@ class CNC():
 			dsrdtr=True,
             rtscts=True  
         )
+            self.ser.write(f"@{self.__convertion(profondeur_gravure, -1)},100;".encode('ascii'))
         def __convertion(self, mm ,multi): #convertit les mm pour le pas de la machine
             return (mm*100)*multi
         # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
@@ -80,17 +81,16 @@ class CNC():
         def aller_a(self, x, y, z, multi=1):
             self.ser.write(f"Z {int(self.__convertion(x, 1)*multi)},{int(self.__convertion(y, 1)*multi)},{int(self.__convertion(z, 1))};".encode('ascii'))
             return 0
-        def actualiser(self):
-            self.ser.write(f"@{self.__convertion(self.profondeur_gravure, 1)};".encode('ascii'))
         def surfacage(self, taille_x, taille_y):
-            self.ser.write(f"T3, {self.__convertion(taille_x,1)},{self.__convertion(taille_y,1)},200,1;".encode('ascii'))
+            self.regler_vitesse(22)
+            self.ser.write(f"T3, {self.__convertion(taille_x,1)},{self.__convertion(taille_y,1)},300,1; V 22".encode('ascii'))
             return 0
         def regler_vitesse(self, vitesse):
             self.ser.write(f"V {vitesse}".encode('ascii'))
             print("vitesse")
             return 0
         def graver_str(self, text): # a test
-            self.ser.write(f"P {text}".encode('ascii'))
+            self.ser.write(f"S 20 P {text}\r\n".encode('ascii'))
             return 0
         # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
         def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
@@ -104,3 +104,6 @@ class CNC():
             self.ser.write(b"O;")
             reponse = self.ser.read(16).decode('ascii').strip()
             return reponse
+        def vider_cache(self):
+            self.ser.reset_input_buffer()
+            return 0
