@@ -92,8 +92,8 @@ class CNC():
         def graver_str(self, text): # a test
             self.ser.write(f"S 20 P {text}\r\n".encode('ascii'))
             return 0
-        def dessiner_arc(self, rayon, degres):
-            self.ser.write(f"E {rayon},180,{degres}".encode('ascii'))
+        def dessiner_cercle(self, rayon, degres):
+            self.ser.write(f"^PR C 0,0,{self.__convertion(rayon,1)}".encode('ascii'))
         # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
         def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
             #on vide le tampon
