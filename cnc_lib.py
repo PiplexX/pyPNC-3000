@@ -92,8 +92,9 @@ class CNC():
         def graver_str(self, text): # a test
             self.ser.write(f"S 20 P {text}\r\n".encode('ascii'))
             return 0
-        def dessiner_cercle(self, rayon, degres):
-            self.ser.write(f"^PR C 0,0,{self.__convertion(rayon,1)}".encode('ascii'))
+        def dessiner_cercle(self, rayon):
+            coo = self.lecture_pos
+            self.ser.write(f"^PR C {coo['x']},{coo['y']},{self.__convertion(rayon,1)}".encode('ascii'))
         # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
         def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
             #on vide le tampon
@@ -104,8 +105,12 @@ class CNC():
         def lecture_pos(self):
             self.ser.reset_input_buffer()
             self.ser.write(b"O;")
-            reponse = self.ser.read(16).decode('ascii').strip()
-            return reponse
+            reponse = self.ser.read(16).decode('ascii').strip().split(',')
+            dico_rep = {}
+            dico_rep['x'] = reponse[0]
+            dico_rep['y'] = reponse[1]
+            dico_rep['z'] = reponse[2]
+            return dico_rep
         def vider_cache(self):
             self.ser.reset_input_buffer()
             return 0
