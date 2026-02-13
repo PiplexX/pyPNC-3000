@@ -61,17 +61,34 @@ class CNC():
                 print("ERREUR: FONCTION=ARRIERE, PROBLEME=Y DOIT ETRE ENTRE 0 ET 15000")
                 return -1
         def diag_HG(self, nb_mm, multix = -1, multiy = 1):
-            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            coo = self.lecture_pos()
+            if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
+                self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            else:
+                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                return -1
             return 0
         def diag_HD(self, nb_mm, multix = 1, multiy = 1):
-            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
+                self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            else:
+                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                return -1
         def diag_BG(self, nb_mm, multix = -1, multiy = -1):
-            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
+                self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            else:
+                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                return -1
         def diag_BD(self, nb_mm, multix = 1, multiy = -1):
-            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
+                self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
+            else:
+                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                return -1
         # ---------------------------------- FONCTIONS DE HAUTEUR ----------------------------------
         def bas(self, nb_mm, multi=-1):
             self.ser.write((f"^PR Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
@@ -120,20 +137,20 @@ class CNC():
             coo = self.lecture_pos
             self.ser.write(f"^PR C {coo['x']},{coo['y']},{self.__convertion(rayon,1)}".encode('ascii'))
         # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
-        def lecture_erreur(self): #ne marche pas pour le moment ou alors pas compris
+        def lecture_erreur(self):
             #on vide le tampon
             self.ser.reset_input_buffer()
             self.ser.write(b"OS;")
-            reponse = self.ser.read(10).decode("ascii").strip()
+            reponse = self.ser.read_until(b'\r').decode("ascii").strip()
             return(reponse)
         def lecture_pos(self):
             self.ser.reset_input_buffer()
             self.ser.write(b"O;")
             reponse = self.ser.read_until(b'\r').decode('ascii').strip().split(',')
             dico_rep = {}
-            dico_rep['x'] = reponse[0]
-            dico_rep['y'] = reponse[1]
-            dico_rep['z'] = reponse[2]
+            dico_rep['x'] = int(reponse[0])
+            dico_rep['y'] = int(reponse[1])
+            dico_rep['z'] = int(reponse[2])
             print(dico_rep)
             return dico_rep
         def vider_cache(self):
