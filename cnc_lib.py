@@ -29,17 +29,37 @@ class CNC():
             return (mm*100)*multi
         # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
         def droite(self, nb_mm, multi=1):
-            self.ser.write((f"^PR Z {self.__convertion(nb_mm, multi)},0,0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (18000>=coo['x']+self.__convertion(nb_mm, multi) >=0):
+                self.ser.write((f"^PR Z {self.__convertion(nb_mm, multi)},0,0;").encode('ascii'))
+                return 0
+            else:
+                print("ERREUR: FONCTION=DROITE, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000")
+                return -1
         def gauche(self, nb_mm, multi=-1):
-            self.ser.write((f"^PR Z{self.__convertion(nb_mm, multi)},0,0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (18000>=coo['x']+self.__convertion(nb_mm, multi) >=0):
+                self.ser.write((f"^PR Z{self.__convertion(nb_mm, multi)},0,0;").encode('ascii'))
+                return 0
+            else:
+                print("ERREUR: FONCTION=GAUCHE, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000")
+                return -1
         def avant(self, nb_mm, multi=1):
-            self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (15000>=coo['y']+self.__convertion(nb_mm, multi) >=0):
+                self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
+                return 0
+            else:
+                print("ERREUR: FONCTION=AVANT, PROBLEME=Y DOIT ETRE ENTRE 0 ET 15000")
+                return -1
         def arriere(self, nb_mm, multi=-1):
-            self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
-            return 0
+            coo = self.lecture_pos()
+            if (15000>=coo['y']+self.__convertion(nb_mm, multi) >=0):
+                self.ser.write((f"^PR Z 0,{self.__convertion(nb_mm, multi)},0;").encode('ascii'))
+                return 0
+            else:
+                print("ERREUR: FONCTION=ARRIERE, PROBLEME=Y DOIT ETRE ENTRE 0 ET 15000")
+                return -1
         def diag_HG(self, nb_mm, multix = -1, multiy = 1):
             self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
             return 0
@@ -79,8 +99,12 @@ class CNC():
             time.sleep(0.5)
             return 0
         def aller_a(self, x, y, z, multi=1):
-            self.ser.write(f"Z {int(self.__convertion(x, 1)*multi)},{int(self.__convertion(y, 1)*multi)},{int(self.__convertion(z, 1))};".encode('ascii'))
-            return 0
+            if(x>=0 and y>=0):
+                self.ser.write(f"Z {int(self.__convertion(x, 1)*multi)},{int(self.__convertion(y, 1)*multi)},{int(self.__convertion(z, 1))};".encode('ascii'))
+                return 0
+            else:
+                print("ERREUR: FONCTION=ALLER_A, PROBLEME=X OU Y NE PEUVENT ETRE NEGATIFS")
+                return -1
         def surfacage(self, taille_x, taille_y):
             self.regler_vitesse(22)
             self.ser.write(f"T3, {self.__convertion(taille_x,1)},{self.__convertion(taille_y,1)},300,1; V 22".encode('ascii'))
@@ -105,11 +129,12 @@ class CNC():
         def lecture_pos(self):
             self.ser.reset_input_buffer()
             self.ser.write(b"O;")
-            reponse = self.ser.read(16).decode('ascii').strip().split(',')
+            reponse = self.ser.read_until(b'\r').decode('ascii').strip().split(',')
             dico_rep = {}
             dico_rep['x'] = reponse[0]
             dico_rep['y'] = reponse[1]
             dico_rep['z'] = reponse[2]
+            print(dico_rep)
             return dico_rep
         def vider_cache(self):
             self.ser.reset_input_buffer()
