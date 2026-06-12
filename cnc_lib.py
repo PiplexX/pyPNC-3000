@@ -130,8 +130,8 @@ class CNC():
             self.ser.write(f"V {vitesse}".encode('ascii'))
             print("vitesse")
             return 0
-        def graver_str(self, text): # a test
-            self.ser.write(f"S 20 P {text}\r\n".encode('ascii'))
+        def graver_str(self, text, taille): # a test
+            self.ser.write(f"S {taille} P {text}\r\n".encode('ascii'))
             return 0
         def dessiner_cercle(self, rayon):
             coo = self.lecture_pos
@@ -143,16 +143,37 @@ class CNC():
             self.ser.write(b"OS;")
             reponse = self.ser.read_until(b'\r').decode("ascii").strip()
             return(reponse)
+        def attendre_pause(self):
+            debut = time.time()
+            timeout = 120
+            derniere = None
+            stable = 0
+            while time.time() - debut < timeout:
+                pos = self.lecture_pos()
+                if pos is None:
+                    stable = 0
+                elif pos == derniere:
+                    stable += 1
+                    if stable >= 2:
+                        return pos
+                else:
+                    stable = 0
+                    derniere = pos
+            time.sleep(0.1)
         def lecture_pos(self):
             self.ser.reset_input_buffer()
+            time.sleep(0.07)
             self.ser.write(b"O;")
             reponse = self.ser.read_until(b'\r').decode('ascii').strip().split(',')
-            dico_rep = {}
-            dico_rep['x'] = int(reponse[0])
-            dico_rep['y'] = int(reponse[1])
-            dico_rep['z'] = int(reponse[2])
-            print(dico_rep)
-            return dico_rep
+            if reponse[0] != '' and len(reponse)==3:
+                dico_rep = {}
+                dico_rep['x'] = int(reponse[0])
+                dico_rep['y'] = int(reponse[1])
+                dico_rep['z'] = int(reponse[2])
+                print(dico_rep)
+                return dico_rep
+            else:
+                return None
         def vider_cache(self):
             self.ser.reset_input_buffer()
             return 0
