@@ -1,6 +1,8 @@
 #Owner : PiplexX, projet CNC 2026 BTS CIEL Loritz
 
 import serial
+import serial.tools.list_ports
+import os
 import time
 
 class CNC():
@@ -8,6 +10,8 @@ class CNC():
         def __init__(self,profondeur_gravure=50, port='COM1', vitesse_bauds=9600) :
             self.port = port
             self.vitesse_bauds = vitesse_bauds
+            self.__verifier_port(port, profondeur_gravure)
+            print(f"INFO: connexion sur le port {port}, profondeur de gravure {profondeur_gravure} mm")
             self.__config(profondeur_gravure)
             self.profondeur_gravure = profondeur_gravure
             #variable dernier Z, inutilisée pour le moment mais conçue pour patch le controle de l'axe Z avec l'IHM
@@ -25,6 +29,21 @@ class CNC():
             rtscts=True  
         )
             self.ser.write(f"@{self.__convertion(profondeur_gravure, -1)},100;".encode('ascii'))
+        #vérifie le port avant de l'ouvrir : si le choix est invalide, rien n'est envoyé sur la liaison série
+        def __verifier_port(self, port, profondeur_gravure):
+            #le premier argument de CNC est la profondeur : CNC('COM3') ne choisit pas le port
+            if isinstance(profondeur_gravure, str):
+                raise ValueError(f"ERREUR: FONCTION=INIT, PROBLEME=PROFONDEUR '{profondeur_gravure}' INVALIDE, POUR CHOISIR LE PORT UTILISER CNC(port='{profondeur_gravure}')")
+            if not isinstance(port, str):
+                raise ValueError(f"ERREUR: FONCTION=INIT, PROBLEME=LE PORT DOIT ETRE UN TEXTE COMME 'COM3', RECU {port!r}")
+            ports = [p.device for p in serial.tools.list_ports.comports()]
+            if os.name == 'nt':
+                port_trouve = port.upper() in [p.upper() for p in ports]
+            else:
+                #les ports virtuels (socat) ne sont pas listés mais existent comme fichiers
+                port_trouve = port in ports or os.path.exists(port)
+            if not port_trouve:
+                raise ValueError(f"ERREUR: FONCTION=INIT, PROBLEME=PORT {port} INTROUVABLE, PORTS DISPONIBLES={ports or 'AUCUN'}")
         def __convertion(self, mm ,multi): #convertit les mm pour le pas de la machine
             return (mm*100)*multi
         # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
