@@ -1,4 +1,4 @@
-#Owner : PiplexX, projet CNC 2026 BTS CIEL Loritz
+#Owner : PiplexX, CNC project 2026 BTS CIEL Loritz
 
 import serial
 import serial.tools.list_ports
@@ -6,7 +6,7 @@ import os
 import time
 
 class CNC():
-        #constructeur, permet de paramètrer la profondeur de gravure par défaut, le port de communication série et la vitesse de la liaison
+        #constructor, lets you set the default engraving depth, the serial port and the link speed
         def __init__(self,profondeur_gravure=50, port='COM1', vitesse_bauds=9600) :
             self.port = port
             self.vitesse_bauds = vitesse_bauds
@@ -14,9 +14,9 @@ class CNC():
             print(f"INFO: connexion sur le port {port}, profondeur de gravure {profondeur_gravure} mm")
             self.__config(profondeur_gravure)
             self.profondeur_gravure = profondeur_gravure
-            #variable dernier Z, inutilisée pour le moment mais conçue pour patch le controle de l'axe Z avec l'IHM
+            #last Z variable, unused for now but designed to patch the Z axis control with the GUI
             self.dernier_z = 0
-        #fonction de config lancé après initialisation, lance la communication série et envoie la commande pour définir les positions PU et PD
+        #config function run after init, starts the serial communication and sends the command to set the PU and PD positions
         def __config(self, profondeur_gravure):
             self.ser = serial.Serial(
             port=self.port,
@@ -29,9 +29,9 @@ class CNC():
             rtscts=True  
         )
             self.ser.write(f"@{self.__convertion(profondeur_gravure, -1)},100;".encode('ascii'))
-        #vérifie le port avant de l'ouvrir : si le choix est invalide, rien n'est envoyé sur la liaison série
+        #checks the port before opening it: if the choice is invalid, nothing is sent over the serial link
         def __verifier_port(self, port, profondeur_gravure):
-            #le premier argument de CNC est la profondeur : CNC('COM3') ne choisit pas le port
+            #the first argument of CNC is the depth: CNC('COM3') does not choose the port
             if isinstance(profondeur_gravure, str):
                 raise ValueError(f"ERREUR: FONCTION=INIT, PROBLEME=PROFONDEUR '{profondeur_gravure}' INVALIDE, POUR CHOISIR LE PORT UTILISER CNC(port='{profondeur_gravure}')")
             if not isinstance(port, str):
@@ -40,13 +40,13 @@ class CNC():
             if os.name == 'nt':
                 port_trouve = port.upper() in [p.upper() for p in ports]
             else:
-                #les ports virtuels (socat) ne sont pas listés mais existent comme fichiers
+                #virtual ports (socat) are not listed but exist as files
                 port_trouve = port in ports or os.path.exists(port)
             if not port_trouve:
                 raise ValueError(f"ERREUR: FONCTION=INIT, PROBLEME=PORT {port} INTROUVABLE, PORTS DISPONIBLES={ports or 'AUCUN'}")
-        def __convertion(self, mm ,multi): #convertit les mm pour le pas de la machine
+        def __convertion(self, mm ,multi): #converts the mm to the machine's step
             return (mm*100)*multi
-        # ---------------------------------- FONCTIONS DE DIRECTION ----------------------------------
+        # ---------------------------------- DIRECTION FUNCTIONS ----------------------------------
         def droite(self, nb_mm, multi=1):
             coo = self.lecture_pos()
             if (18000>=coo['x']+self.__convertion(nb_mm, multi) >=0):
@@ -108,7 +108,7 @@ class CNC():
             else:
                 print("ERREUR: FONCTION=diag_BD, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
                 return -1
-        # ---------------------------------- FONCTIONS DE HAUTEUR ----------------------------------
+        # ---------------------------------- HEIGHT FUNCTIONS ----------------------------------
         def bas(self, nb_mm, multi=-1):
             self.ser.write((f"^PR Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
             self.dernier_z += self.__convertion(nb_mm, multi)
@@ -117,9 +117,9 @@ class CNC():
             self.ser.write((f"^PR Z 0,0,{self.__convertion(nb_mm,multi)};").encode('ascii'))
             self.dernier_z += self.__convertion(nb_mm, multi)
             return 0
-        # ---------------------------------- FONCTIONS PARTICULIERES ----------------------------------
+        # ---------------------------------- SPECIAL FUNCTIONS ----------------------------------
         def start_conf(self):
-            #Initialisation du niveau de gravure et du niveau de repos (Attention Z0 doit être set manuellement)
+            #Init of the engraving level and the rest level (Careful, Z0 must be set manually)
             self.ser.write((f"@ {self.__convertion(self.profondeur_gravure, -1)} , 100").encode("ascii"))
             cords = self.lecture_pos()
             self.dernier_x,self.dernier_y,self.dernier_z= cords.split(',')
@@ -149,15 +149,15 @@ class CNC():
             self.ser.write(f"V {vitesse}".encode('ascii'))
             print("vitesse")
             return 0
-        def graver_str(self, text, taille): # a test
+        def graver_str(self, text, taille): # to test
             self.ser.write(f"S {taille} P {text}\r\n".encode('ascii'))
             return 0
         def dessiner_cercle(self, rayon):
             coo = self.lecture_pos
             self.ser.write(f"^PR C {coo['x']},{coo['y']},{self.__convertion(rayon,1)}".encode('ascii'))
-        # ---------------------------------- FONCTIONS DE LECTURE ----------------------------------
+        # ---------------------------------- READING FUNCTIONS ----------------------------------
         def lecture_erreur(self):
-            #on vide le tampon
+            #we empty the buffer
             self.ser.reset_input_buffer()
             self.ser.write(b"OS;")
             reponse = self.ser.read_until(b'\r').decode("ascii").strip()

@@ -1,4 +1,4 @@
-#Owner : PiplexX, projet CNC 2026 BTS CIEL Loritz
+#Owner : PiplexX, CNC project 2026 BTS CIEL Loritz
 
 import pygame
 from cnc_lib import CNC
@@ -6,7 +6,7 @@ from cnc_lib import CNC
 pygame.init()
 MaCNC = CNC()
 
-# --- init manette ---
+# --- gamepad init ---
 liste_manettes = []
 for i in range(pygame.joystick.get_count()):
     liste_manettes.append(pygame.joystick.Joystick(i))
@@ -34,26 +34,26 @@ while en_cours:
         if event.type == pygame.QUIT:
             en_cours = False
         elif event.type == pygame.JOYBUTTONDOWN:
-            if event.button == 0:     # A — outil en bas
+            if event.button == 0:     # A — tool down
                 MaCNC.position_gravure()
-            elif event.button == 1:   # B — outil en haut
+            elif event.button == 1:   # B — tool up
                 MaCNC.position_releve()
-            elif event.button == 3:   # Y — retour home
+            elif event.button == 3:   # Y — back to home
                 MaCNC.home()
-            elif event.button == 4:   # LB — vitesse -2
+            elif event.button == 4:   # LB — speed -2
                 vitesse_cnc = max(1, vitesse_cnc - 2)
                 MaCNC.regler_vitesse(vitesse_cnc)
                 print(f"INFO: vitesse réglée à {vitesse_cnc}")
-            elif event.button == 5:   # RB — vitesse +2
+            elif event.button == 5:   # RB — speed +2
                 vitesse_cnc = min(50, vitesse_cnc + 2)
                 MaCNC.regler_vitesse(vitesse_cnc)
                 print(f"INFO: vitesse réglée à {vitesse_cnc}")
             elif event.button == 7:
                 en_cours = False
 
-    axe_x = manette.get_axis(0)  # stick gauche X
-    axe_y = manette.get_axis(1)  # stick gauche Y
-    axe_z = manette.get_axis(4)  # stick droit Y
+    axe_x = manette.get_axis(0)  # left stick X
+    axe_y = manette.get_axis(1)  # left stick Y
+    axe_z = manette.get_axis(4)  # right stick Y
 
     x_actif = abs(axe_x) > DEADZONE
     y_actif = abs(axe_y) > DEADZONE
