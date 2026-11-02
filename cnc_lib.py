@@ -73,21 +73,21 @@ class CNC():
             if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
                 self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
             else:
-                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                print("ERREUR: FONCTION=diag_HD, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
                 return -1
         def diag_BG(self, nb_mm, multix = -1, multiy = -1):
             coo = self.lecture_pos()
             if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
                 self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
             else:
-                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                print("ERREUR: FONCTION=diag_BG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
                 return -1
         def diag_BD(self, nb_mm, multix = 1, multiy = -1):
             coo = self.lecture_pos()
             if (18000>=coo['x']+self.__convertion(nb_mm, multix) >=0) and (15000>=coo['y']+self.__convertion(nb_mm, multiy) >=0):
                 self.ser.write((f"^PR Z {self.__convertion(nb_mm, multix)},{self.__convertion(nb_mm, multiy)},0;").encode('ascii'))
             else:
-                print("ERREUR: FONCTION=diag_HG, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
+                print("ERREUR: FONCTION=diag_BD, PROBLEME=X DOIT ETRE ENTRE 0 ET 18000 ET Y DOIT ETRE ENTRE 0 ET 15000")
                 return -1
         # ---------------------------------- FONCTIONS DE HAUTEUR ----------------------------------
         def bas(self, nb_mm, multi=-1):
